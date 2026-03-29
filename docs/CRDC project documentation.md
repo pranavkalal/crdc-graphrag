@@ -34,8 +34,6 @@
 
 ## 1. Executive Summary
 
-The strongest high-level conclusion is this:
-
 **GraphRAG is not one pattern, it is a family of patterns.** The right choice depends on the type of questions the system must answer.
 
 A standard vector RAG stack is often enough for local, passage-level lookup. It becomes weaker when the system needs:
@@ -51,10 +49,9 @@ That is exactly where knowledge graphs help. Knowledge graphs are especially use
 The recommended position for this project:
 
 - **GraphRAG / graph-first architecture is the primary focus.**
-- **Microsoft GraphRAG is not assumed as the default implementation.**
 - **Neo4j is the recommended primary database** if the target system is genuinely graph-aware, not just vector-aware.
-- **AI SDK is the recommended initial environment**, with LangGraph available as the stronger orchestration alternative if workflow complexity grows.
-- **Environment selection comes before provider and model comparison.**
+- **Langchain is the recommended initial environment**, with AI-SDK and Mastra being solid fully-typed LLM/Agent friendy alternative development tools, Langraph(Langcahin orchestration layer), Mastra(AI-SDK orchestration layer).
+- **Workflow comes before provider and model comparison.** for solutions that rely on private data or data that is not considered withing a model training data, selecting SOTA models may not bring any substantial benefits, any model capable of interpreting the inyected context and user question, works good enough 
 
 ---
 
