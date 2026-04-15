@@ -1,14 +1,123 @@
-"""Placeholder extraction service for future document processing logic."""
+"""Extraction chains for IPM knowledge graph using Gemini structured output."""
 
-from app.infrastructure.openai_client import OpenAIClient
+from pydantic import BaseModel, Field
 
+from app.infrastructure.gemini_client import GeminiClient
+
+
+# ── Schema: Pest-Chemical Control Table ─────────────────────────────────────
+
+class ChemicalExtraction(BaseModel):
+    """Extracted attributes for a chemical regarding a specific pest."""
+    name: str = Field(description="Name of the active ingredient")
+    moa_group_code: str = Field(description="Mode of Action group code, e.g. 1A, UNM, 4A. Use 'Unknown' if not specified.")
+    resistance_status: str | None = Field(default=None, description="Known resistance status, e.g. 'Widespread resistance', 'Unknown'")
+    beneficial_impact: str | None = Field(default=None, description="Impact on beneficial insects (e.g. Very low, Low, Moderate, High, Very high)")
+    max_applications: str | None = Field(default=None, description="Constraints such as 'Maximum 2 applications per season'")
+
+class PestChemicalTableExtraction(BaseModel):
+    """Top-level extraction schema for a control table."""
+    pest_name: str = Field(description="Common name of the primary pest being controlled in this table")
+    chemicals: list[ChemicalExtraction]
+
+
+# ── Schema: Disease Extraction (prose-based) ────────────────────────────────
+
+class DiseaseItem(BaseModel):
+    """A single disease entity extracted from prose."""
+    name: str = Field(description="Common name of the disease (e.g. Black root rot, Fusarium wilt)")
+    pathogen: str | None = Field(default=None, description="Scientific name of the causal pathogen (e.g. Berkeleyomyces rouxiae)")
+    symptoms: str | None = Field(default=None, description="Brief summary of key symptoms")
+    favoured_by: str | None = Field(default=None, description="Conditions that favour the disease (e.g. cool wet soils)")
+    management_tactics: str | None = Field(default=None, description="Summary of IDM tactics")
+
+class DiseaseExtraction(BaseModel):
+    """Extraction result for a diseases section."""
+    diseases: list[DiseaseItem] = Field(description="All diseases found in the text")
+
+
+# ── Schema: Beneficial Insect Extraction (prose-based) ──────────────────────
+
+class BeneficialItem(BaseModel):
+    """A beneficial insect or spider extracted from prose."""
+    name: str = Field(description="Common name (e.g. Red and blue beetle, Trichogramma)")
+    scientific_name: str | None = Field(default=None, description="Scientific name if mentioned")
+    beneficial_type: str = Field(description="One of: predator, parasitoid, or predator/parasitoid")
+    prey_pests: list[str] = Field(default_factory=list, description="List of pest names this beneficial attacks (e.g. ['Helicoverpa eggs', 'aphids', 'mites'])")
+
+class BeneficialExtraction(BaseModel):
+    """Extraction result for a beneficials section."""
+    beneficials: list[BeneficialItem] = Field(description="All beneficial insects found in the text")
+
+
+# ── Schema: Defoliant Chemical Extraction ───────────────────────────────────
+
+class DefoliantItem(BaseModel):
+    """A defoliant/harvest aid chemical."""
+    name: str = Field(description="Active ingredient name (e.g. Thidiazuron, Ethephon)")
+    product_type: str = Field(description="One of: defoliant, boll opener, desiccant")
+    trade_names: list[str] = Field(default_factory=list, description="Trade name examples (e.g. ['Dropp', 'Escalate'])")
+    key_notes: str | None = Field(default=None, description="Brief usage notes or temperature constraints")
+
+class DefoliantExtraction(BaseModel):
+    """Extraction result for a defoliation section."""
+    chemicals: list[DefoliantItem] = Field(description="All harvest aid chemicals found in the text")
+
+
+# ── Service ─────────────────────────────────────────────────────────────────
 
 class ExtractionService:
-    """Coordinate ontology extraction from pilot documents."""
+    """Service to coordinate extraction from document chunks."""
 
-    def __init__(self, openai_client: OpenAIClient) -> None:
-        self._openai_client = openai_client
+    def __init__(self, gemini_client: GeminiClient):
+        self._client = gemini_client
 
-    async def extract_document(self, document_path: str) -> dict[str, object]:
-        """Placeholder document extraction entry point."""
-        raise NotImplementedError("Document extraction has not been implemented yet.")
+    async def extract_pest_chemical_table(self, table_text: str) -> PestChemicalTableExtraction:
+        """Extract Pest, Chemical, and MoAGroup relationships from control tables."""
+        extractor = self._client.get_extractor(PestChemicalTableExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton pest management knowledge graph.\n"
+            "Extract the primary pest name and ALL associated chemical control options from the following Markdown table.\n\n"
+            f"Here is the table text:\n{table_text}"
+        )
+        return await extractor.ainvoke(prompt)
+
+    async def extract_diseases(self, prose_text: str) -> DiseaseExtraction:
+        """Extract Disease entities from prose disease descriptions."""
+        extractor = self._client.get_extractor(DiseaseExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton disease management knowledge graph.\n"
+            "Extract ALL cotton diseases mentioned in the following text.\n"
+            "For each disease, capture its common name, the pathogen's scientific name, the key symptoms, "
+            "what conditions favour it, and any management tactics.\n"
+            "Only extract actual named diseases — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)
+
+    async def extract_beneficials(self, prose_text: str) -> BeneficialExtraction:
+        """Extract Beneficial insect entities and the pests they prey on."""
+        extractor = self._client.get_extractor(BeneficialExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton IPM knowledge graph.\n"
+            "Extract ALL beneficial insects and spiders mentioned in the following text.\n"
+            "For each, capture: common name, scientific name if given, whether it is a predator or parasitoid, "
+            "and exactly which cotton pests it attacks or preys on.\n"
+            "Only extract named beneficial organisms — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)
+
+    async def extract_defoliants(self, prose_text: str) -> DefoliantExtraction:
+        """Extract defoliant/harvest aid chemicals from the defoliation guide."""
+        extractor = self._client.get_extractor(DefoliantExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton knowledge graph.\n"
+            "Extract ALL harvest aid chemicals (defoliants, boll openers, desiccants) from the following text.\n"
+            "For each, capture: active ingredient name, product type (defoliant/boll opener/desiccant), "
+            "any trade name examples, and key usage notes.\n"
+            "Only extract named chemicals — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)
+

@@ -53,5 +53,14 @@ class Neo4jClient:
         """Expose the raw driver for future repository adapters when needed."""
         return self._driver
 
+    async def run_query(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        """Run a parameterized cypher query and return a list of records as dicts."""
+        if self._driver is None:
+            raise RuntimeError("Neo4j driver is not connected.")
+
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(query, parameters or {})
+            records = await result.data()
+            return records
 
 HealthCheckResult = bool | Mapping[str, Any]
