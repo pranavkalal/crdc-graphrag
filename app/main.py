@@ -1,4 +1,4 @@
-"""FastAPI application entry point for the CRDC Lazy GraphRAG pilot."""
+"""FastAPI application entry point for the CRDC Lazy GraphRAG ."""
 
 from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager

@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     openai_api_key: SecretStr | None = Field(default=None)
     openai_model: str | None = Field(default=None)
 
+    gemini_api_key: SecretStr = Field(...)
+    gemini_model: str = Field(default="gemini-2.5-flash")
+
 
 @lru_cache
 def get_settings() -> Settings:
