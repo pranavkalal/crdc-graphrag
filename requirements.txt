@@ -66,3 +66,5 @@ xxhash==3.6.0
 yarl==1.23.0
 zstandard==0.25.0
 pytest==8.3.4
+langchain-google-genai>=1.0.1
+google-generativeai>=0.4.0
