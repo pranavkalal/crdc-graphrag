@@ -162,6 +162,74 @@ class GraphRepository:
             "trade_names": trade_names or [], "key_notes": key_notes, "source": source
         })
 
+    # ── Variety ─────────────────────────────────────────────────────────────
+
+    async def merge_variety(self, name: str, company: str | None = None, crop_type: str | None = None, source: str | None = None) -> None:
+        query = """
+        MERGE (v:Variety {name: $name})
+        SET v.company = $company,
+            v.crop_type = $crop_type,
+            v.source = $source
+        """
+        await self._db.run_query(query, {"name": name, "company": company, "crop_type": crop_type, "source": source})
+
+    async def merge_suited_to(self, variety_name: str, region_name: str) -> None:
+        query = """
+        MERGE (r:Region {name: $region_name})
+        WITH r
+        MATCH (v:Variety {name: $variety_name})
+        MERGE (v)-[:SUITED_TO]->(r)
+        """
+        await self._db.run_query(query, {"variety_name": variety_name, "region_name": region_name})
+
+    async def merge_has_trait(self, variety_name: str, trait_name: str, description: str | None = None) -> None:
+        query = """
+        MERGE (t:Trait {name: $trait_name})
+        ON CREATE SET t.description = $description
+        WITH t
+        MATCH (v:Variety {name: $variety_name})
+        MERGE (v)-[:HAS_TRAIT]->(t)
+        """
+        await self._db.run_query(query, {"variety_name": variety_name, "trait_name": trait_name, "description": description})
+
+    # ── Weed ────────────────────────────────────────────────────────────────
+
+    async def merge_weed(self, name: str, scientific_name: str | None = None, weed_type: str | None = None, source: str | None = None) -> None:
+        query = """
+        MERGE (w:Weed {name: $name})
+        SET w.scientific_name = $scientific_name,
+            w.weed_type = $weed_type,
+            w.source = $source
+        """
+        await self._db.run_query(query, {"name": name, "scientific_name": scientific_name, "weed_type": weed_type, "source": source})
+
+    # Note: We reuse merge_controlled_by for Weeds controlling by Chemicals, just pass the weed name instead of pest name
+    async def merge_weed_controlled_by(self, weed_name: str, chemical_name: str) -> None:
+        query = """
+        MATCH (w:Weed {name: $weed_name})
+        MATCH (c:Chemical {name: $chemical_name})
+        MERGE (w)-[:CONTROLLED_BY]->(c)
+        """
+        await self._db.run_query(query, {"weed_name": weed_name, "chemical_name": chemical_name})
+
+    # ── Crop Stage ──────────────────────────────────────────────────────────
+
+    async def merge_crop_stage(self, name: str, phase: str | None = None, source: str | None = None) -> None:
+        query = """
+        MERGE (cs:CropStage {name: $name})
+        SET cs.phase = $phase,
+            cs.source = $source
+        """
+        await self._db.run_query(query, {"name": name, "phase": phase, "source": source})
+
+    async def merge_precedes(self, stage_name: str, next_stage_name: str) -> None:
+        query = """
+        MATCH (cs1:CropStage {name: $stage_name})
+        MATCH (cs2:CropStage {name: $next_stage_name})
+        MERGE (cs1)-[:PRECEDES]->(cs2)
+        """
+        await self._db.run_query(query, {"stage_name": stage_name, "next_stage_name": next_stage_name})
+
     # ── Stats ───────────────────────────────────────────────────────────────
 
     async def get_graph_stats(self) -> dict[str, int]:

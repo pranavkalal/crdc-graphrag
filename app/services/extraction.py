@@ -64,6 +64,53 @@ class DefoliantExtraction(BaseModel):
     chemicals: list[DefoliantItem] = Field(description="All harvest aid chemicals found in the text")
 
 
+# ── Schema: Variety Extraction ──────────────────────────────────────────────
+
+class TraitItem(BaseModel):
+    """A genetic trait possessed by a variety."""
+    name: str = Field(description="Name of the trait (e.g. Bollgard 3, Roundup Ready Flex, XtendFlex)")
+    description: str | None = Field(default=None, description="Brief description of the trait's purpose")
+
+class VarietyItem(BaseModel):
+    """A cotton variety and its suited regions and traits."""
+    name: str = Field(description="Name of the variety (e.g. Sicot 748B3F)")
+    company: str | None = Field(default=None, description="Seed company (e.g. CSD, Bayer)")
+    crop_type: str | None = Field(default=None, description="Type of cotton (e.g. Upland, Pima)")
+    suited_regions: list[str] = Field(default_factory=list, description="Regions this variety is suited for")
+    traits: list[TraitItem] = Field(default_factory=list, description="Traits this variety possesses")
+
+class VarietyExtraction(BaseModel):
+    """Extraction result for a varieties section."""
+    varieties: list[VarietyItem] = Field(description="All varieties found in the text")
+
+
+# ── Schema: Weed Extraction ──────────────────────────────────────────────────
+
+class WeedItem(BaseModel):
+    """A weed entity and herbicides that control it."""
+    name: str = Field(description="Common name of the weed (e.g. Fleabane, Feathertop Rhodes grass)")
+    scientific_name: str | None = Field(default=None, description="Scientific name if mentioned")
+    weed_type: str | None = Field(default=None, description="Type of weed (e.g. grass, broadleaf)")
+    controlled_by: list[str] = Field(default_factory=list, description="List of herbicides or chemicals that control this weed")
+
+class WeedExtraction(BaseModel):
+    """Extraction result for a weeds section."""
+    weeds: list[WeedItem] = Field(description="All weeds found in the text")
+
+
+# ── Schema: Crop Stage Extraction ────────────────────────────────────────────
+
+class CropStageItem(BaseModel):
+    """A stage of crop growth."""
+    name: str = Field(description="Name of the growth stage (e.g. Emergence, First Square, First Flower)")
+    phase: str | None = Field(default=None, description="Broader phase (e.g. Vegetative, Reproductive)")
+    precedes: list[str] = Field(default_factory=list, description="Names of the stages that immediately follow this one")
+
+class CropStageExtraction(BaseModel):
+    """Extraction result for crop stages."""
+    stages: list[CropStageItem] = Field(description="All crop stages found in the text")
+
+
 # ── Service ─────────────────────────────────────────────────────────────────
 
 class ExtractionService:
@@ -121,3 +168,41 @@ class ExtractionService:
         )
         return await extractor.ainvoke(prompt)
 
+    async def extract_varieties(self, prose_text: str) -> VarietyExtraction:
+        """Extract cotton varieties, their traits, and suited regions."""
+        extractor = self._client.get_extractor(VarietyExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton knowledge graph.\n"
+            "Extract ALL cotton varieties mentioned in the following text.\n"
+            "For each variety, capture its name, seed company, crop type (Upland/Pima), "
+            "the regions it is suited to, and the specific genetic traits it has (e.g., Bollgard 3).\n"
+            "Only extract named varieties — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)
+
+    async def extract_weeds(self, prose_text: str) -> WeedExtraction:
+        """Extract weeds and the herbicides that control them."""
+        extractor = self._client.get_extractor(WeedExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton knowledge graph.\n"
+            "Extract ALL weeds mentioned in the following text.\n"
+            "For each weed, capture its common name, scientific name (if any), weed type, "
+            "and a list of herbicides or chemical active ingredients mentioned as controlling it.\n"
+            "Only extract named weeds — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)
+
+    async def extract_crop_stages(self, prose_text: str) -> CropStageExtraction:
+        """Extract crop growth stages and their chronological order."""
+        extractor = self._client.get_extractor(CropStageExtraction)
+        prompt = (
+            "You are an entity extraction agent for an Australian cotton knowledge graph.\n"
+            "Extract ALL crop growth stages mentioned in the following text.\n"
+            "For each stage, capture its name, the broader phase it belongs to, "
+            "and the names of the stages that directly follow it (to establish a 'precedes' timeline).\n"
+            "Only extract named stages — do not invent any.\n\n"
+            f"Here is the text:\n{prose_text}"
+        )
+        return await extractor.ainvoke(prompt)

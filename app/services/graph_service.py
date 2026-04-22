@@ -23,26 +23,44 @@ logger = logging.getLogger(__name__)
 
 _SCHEMA = """
 Node labels and key properties:
-  Pest       {name, scientific_name, pest_type}
+  Pest       {name, scientific_name, pest_type, biosecurity_risk, spread_mechanism, found_in}
   Chemical   {name, chemical_type, trade_names, key_notes}
              chemical_type values for insecticides: NULL (not set)
              chemical_type values for harvest aids: 'defoliant', 'boll opener', 'desiccant'
+             chemical_type for herbicides: 'Herbicide'
   MoAGroup   {group_code, group_name}
-  Disease    {name, pathogen, symptoms, favoured_by, management}
+  Disease    {name, pathogen, symptoms, favoured_by, management, biosecurity_risk, spread_mechanism, found_in}
   Beneficial {name, scientific_name, beneficial_type}
   Crop       {name}
+  Term       {canonical_term, definition, source}
+  Acronym    {acronym, expanded_form, source}
+  Weed       {name, scientific_name, weed_type, source}
+  Variety    {name, company, crop_type, f_rank, v_rank, source}
+  Region     {name}
+  Trait      {name, description}
+  CropStage  {name, phase, source}
+  Threshold  {value, pest_name, crop_phase, sampling_method, notes, source}
 
 Relationship types:
   (Pest)-[:CONTROLLED_BY {resistance_status, beneficial_impact, max_applications, source}]->(Chemical)
   (Chemical)-[:BELONGS_TO]->(MoAGroup)
   (Disease)-[:AFFECTS]->(Crop)
+  (Pest)-[:AFFECTS]->(Crop)
   (Beneficial)-[:PREDATES]->(Pest)
+  (Weed)-[:CONTROLLED_BY]->(Chemical)
+  (Weed)-[:HAS_RESISTANCE_TO]->(Chemical)
+  (Variety)-[:SUITED_TO]->(Region)
+  (Variety)-[:HAS_TRAIT]->(Trait)
+  (CropStage)-[:PRECEDES]->(CropStage)
+  (Pest)-[:HAS_THRESHOLD]->(Threshold)
 
 Query tips:
-  - Pest names: 'Cotton aphid', 'Helicoverpa', 'Green mirid', 'Two-spotted spider mite',
-    'Wireworm', 'Green vegetable bug', 'Thrips', 'Silverleaf whitefly', 'Solenopsis mealybug'
-  - Harvest aid chemicals (defoliants, boll openers, desiccants) are queried via:
-    MATCH (c:Chemical) WHERE c.chemical_type IN ['defoliant', 'boll opener', 'desiccant'] RETURN c
+  - For glossary/definition questions: MATCH (t:Term) WHERE toLower(t.canonical_term) CONTAINS toLower($term) RETURN t.canonical_term, t.definition
+  - For acronym lookups: MATCH (a:Acronym) WHERE a.acronym = $acronym RETURN a.acronym, a.expanded_form
+  - For weed control: MATCH (w:Weed)-[:CONTROLLED_BY]->(c:Chemical) WHERE toLower(w.name) CONTAINS toLower($term) RETURN w.name, c.name
+  - For variety info: MATCH (v:Variety) RETURN v.name, v.company, v.f_rank, v.v_rank
+  - For biosecurity threats: MATCH (n) WHERE n.biosecurity_risk IS NOT NULL RETURN labels(n)[0] AS type, n.name, n.biosecurity_risk
+  - For pest thresholds: MATCH (p:Pest)-[:HAS_THRESHOLD]->(th:Threshold) RETURN p.name, th.value, th.crop_phase, th.sampling_method
   - Use case-insensitive matching: WHERE toLower(p.name) CONTAINS toLower($term)
   - Always use LIMIT (max 50) to avoid large result sets.
   - Return human-readable field names using AS aliases.

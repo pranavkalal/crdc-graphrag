@@ -26,6 +26,8 @@ class NodeLabel(str, Enum):
     DISEASE = "Disease"
     VARIETY = "Variety"
     REGION = "Region"
+    WEED = "Weed"
+    TRAIT = "Trait"
 
 
 class RelationshipType(str, Enum):
@@ -45,6 +47,9 @@ class RelationshipType(str, Enum):
     ACTIVE_DURING = "ACTIVE_DURING"
     SPECIALISES_IN = "SPECIALISES_IN"
     RESISTANT_TO = "RESISTANT_TO"
+    HAS_TRAIT = "HAS_TRAIT"
+    PRECEDES = "PRECEDES"
+    SUITED_TO = "SUITED_TO"
 
 
 class BaseNode(BaseModel):
@@ -132,10 +137,23 @@ class Disease(BaseNode):
 class Variety(BaseNode):
     label: Literal[NodeLabel.VARIETY] = NodeLabel.VARIETY
     name: str
+    company: str | None = None
+    crop_type: str | None = None
 
 class Region(BaseNode):
     label: Literal[NodeLabel.REGION] = NodeLabel.REGION
     name: str
+
+class Weed(BaseNode):
+    label: Literal[NodeLabel.WEED] = NodeLabel.WEED
+    name: str
+    scientific_name: str | None = None
+    weed_type: str | None = None
+
+class Trait(BaseNode):
+    label: Literal[NodeLabel.TRAIT] = NodeLabel.TRAIT
+    name: str
+    description: str | None = None
 
 
 # --- Relationship Models ---
@@ -159,5 +177,5 @@ class WrittenByRelationship(BaseRelationship):
     target_label: Literal[NodeLabel.AUTHOR] = NodeLabel.AUTHOR
 
 
-OntologyNode = Term | Acronym | Document | Author | Pest | Chemical | MoAGroup | Beneficial | CropStage | Threshold | Researcher | Organisation | Disease | Variety | Region
+OntologyNode = Term | Acronym | Document | Author | Pest | Chemical | MoAGroup | Beneficial | CropStage | Threshold | Researcher | Organisation | Disease | Variety | Region | Weed | Trait
 OntologyRelationship = BaseRelationship
