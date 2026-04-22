@@ -276,6 +276,8 @@ with tab3:
         "Varieties → Traits & Regions",
         "Biosecurity Threats",
         "Pest Thresholds",
+        "Glossary Terms",
+        "Acronyms",
         "Full Graph (all entities)",
     ])
 
@@ -288,13 +290,13 @@ with tab3:
         "Varieties → Traits & Regions": "MATCH (v:Variety)-[r]->(t) WHERE t:Trait OR t:Region RETURN v AS n, r, t AS m LIMIT 100",
         "Biosecurity Threats": "MATCH (n)-[r:AFFECTS]->(m:Crop) WHERE n.biosecurity_risk IS NOT NULL RETURN n, r, m LIMIT 50",
         "Pest Thresholds": "MATCH (n:Pest)-[r:HAS_THRESHOLD]->(m:Threshold) RETURN n, r, m LIMIT 100",
+        "Glossary Terms": "MATCH (n:Term) RETURN n LIMIT 150",
+        "Acronyms": "MATCH (n:Acronym) RETURN n LIMIT 100",
         "Full Graph (all entities)": (
             "MATCH (n)-[r]->(m) "
             "WHERE NOT 'Chunk' IN labels(n) AND NOT '__Entity__' IN labels(n) "
             "AND NOT 'Chunk' IN labels(m) AND NOT '__Entity__' IN labels(m) "
             "AND NOT 'Document' IN labels(n) AND NOT 'Document' IN labels(m) "
-            "AND NOT 'Term' IN labels(n) AND NOT 'Term' IN labels(m) "
-            "AND NOT 'Acronym' IN labels(n) AND NOT 'Acronym' IN labels(m) "
             "RETURN n, r, m LIMIT 300"
         ),
     }
@@ -326,7 +328,7 @@ with tab3:
                         if val:
                             tooltip_parts.append(f"{prop_key}: {val}")
                     tooltip = "<br>".join(tooltip_parts)
-                    size = 25 if lbl in ("Pest", "Weed", "Variety", "Disease") else 18
+                    size = 25 if lbl in ("Pest", "Weed", "Variety", "Disease", "Term", "Acronym") else 18
                     net.add_node(n.element_id, label=str(name)[:30], title=tooltip, color=color, size=size)
 
                 if m:
@@ -340,7 +342,7 @@ with tab3:
                         if val:
                             tooltip_parts.append(f"{prop_key}: {val}")
                     tooltip = "<br>".join(tooltip_parts)
-                    size = 25 if lbl in ("Pest", "Weed", "Variety", "Disease") else 18
+                    size = 25 if lbl in ("Pest", "Weed", "Variety", "Disease", "Term", "Acronym") else 18
                     net.add_node(m.element_id, label=str(name)[:30], title=tooltip, color=color, size=size)
 
                 if r and n and m:
