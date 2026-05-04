@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     gemini_api_key: SecretStr = Field(...)
     gemini_model: str = Field(default="gemini-2.5-flash")
 
+    # ── Vector RAG bridge (optional — only needed for LangGraph agent) ───
+    postgres_connection_string: SecretStr | None = Field(default=None)
+    openai_api_key: SecretStr | None = Field(default=None)
+
 
 @lru_cache
 def get_settings() -> Settings:
