@@ -57,6 +57,7 @@ flowchart LR
         A["Hybrid RAG<br/>(Supabase pgvector)"]
         B["Knowledge Graph<br/>(Neo4j)"]
         A ~~~ B
+    B -->|"This Plan"| C
     end
     
     subgraph GOAL["Goal: Unified System"]
@@ -70,8 +71,6 @@ flowchart LR
         E --> F
         F --> G["Final Answer"]
     end
-    
-    TODAY -->|"This Plan"| GOAL
 ```
 
 > [!IMPORTANT]
@@ -117,8 +116,8 @@ flowchart TB
         PG["Supabase Postgres<br/>~50K chunks<br/>pgvector + tsvector"]
     end
     
-    T2 <-->|"Cypher"| NEO
-    T1 <-->|"RRF Hybrid Search"| PG
+    T2 <->|"Cypher"| NEO
+    T1 <->|"RRF Hybrid Search"| PG
     
     style AGENT fill:#1a1a2e,stroke:#e94560,stroke-width:2px,color:#fff
     style CTX fill:#0f3460,stroke:#e94560,stroke-width:2px,color:#fff
@@ -133,24 +132,19 @@ This is the core orchestration graph — each box is a **node** in the LangGraph
 stateDiagram-v2
     [*] --> classify_intent
     
-    classify_intent --> graph_only: Entity/Relational query
-    classify_intent --> vector_only: Semantic/Prose query
-    classify_intent --> graph_then_vector: Hybrid query
+    classify_intent --> graph_retrieve : Entity/Relational query
+    classify_intent --> vector_retrieve : Semantic/Prose query
+    classify_intent --> graph_retrieve : Hybrid query
     
-    graph_only --> graph_retrieve
-    graph_retrieve --> assemble_context
+    graph_retrieve --> assemble_context : graph_only
+    graph_retrieve --> vector_retrieve : hybrid
     
-    vector_only --> vector_retrieve
     vector_retrieve --> assemble_context
-    
-    graph_then_vector --> graph_retrieve_hybrid
-    graph_retrieve_hybrid --> vector_retrieve_enriched
-    vector_retrieve_enriched --> assemble_context
     
     assemble_context --> synthesise_answer
     synthesise_answer --> [*]
     
-    note right of graph_then_vector
+    note right of graph_retrieve
         KEY INNOVATION: Graph results
         ENRICH the vector search query
         with exact entity names
@@ -315,8 +309,15 @@ workflow.add_conditional_edges(
     }
 )
 
-workflow.add_edge("graph_retrieve", "assemble_context")     # graph_only path
-workflow.add_edge("graph_retrieve", "vector_retrieve")      # hybrid path  
+workflow.add_conditional_edges(
+    "graph_retrieve",
+    route_after_graph,
+    {
+        "graph_only": "assemble_context",
+        "hybrid": "vector_retrieve",
+    }
+)
+
 workflow.add_edge("vector_retrieve", "assemble_context")
 workflow.add_edge("assemble_context", "synthesise")
 workflow.add_edge("synthesise", END)

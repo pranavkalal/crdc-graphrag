@@ -72,3 +72,4 @@ streamlit
 pandas
 pyvis
 asyncpg
+greenlet
