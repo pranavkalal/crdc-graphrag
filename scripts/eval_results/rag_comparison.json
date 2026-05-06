@@ -1,0 +1,257 @@
+[
+  {
+    "id": "A1",
+    "category": "Entity",
+    "question": "What chemicals can I use to control Green Mirids?",
+    "baseline": {
+      "answer": "To control Green Mirids, five chemicals commonly used are fipronil, sulfoxaflor, dimethoate, acetamiprid, and clothianidin (Source 1). Fipronil, despite decreasing use over time, remains the most popular control option for Green Mirids (Source 1). Phorate is also an at-planting pesticide mentioned for controlling early season pests, including mirids, though it is considered highly toxic and has been nominated for APVMA review (Source 1).",
+      "time_s": 4.7,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "No specific information regarding chemicals for Green Mirid control was found in the CRDC Knowledge Graph or official cotton industry manuals. Therefore, I cannot provide specific chemical recommendations. For current and approved chemical options, please consult the latest Australian Cotton Production Manual (ACPM) or Cotton Pest Management Guide (CPMG), or contact a local agronomist.",
+      "intent": "graph_only",
+      "time_s": 2.26,
+      "graph_records_used": 0,
+      "cypher_query": "MATCH (p:Pest)-[:CONTROLLED_BY]->(c:Chemical) WHERE toLower(p.name) CONTAINS toLower('Green Mirids') RETURN p.name AS Pest, c.name AS Chemical LIMIT 50"
+    }
+  },
+  {
+    "id": "A2",
+    "category": "Entity",
+    "question": "Which MoA group does Spirotetramat belong to?",
+    "baseline": {
+      "answer": "The provided document context does not contain information regarding the MoA group of Spirotetramat. The documents discuss \"SiroMat\" as a cotton fiber testing instrument and its patent history, along with various methods for fiber quality assessment. There is no mention of the chemical Spirotetramat or its mode of action.",
+      "time_s": 3.06,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Spirotetramat belongs to MoA Group 23. This information is verified from the CRDC Knowledge Graph.",
+      "intent": "graph_only",
+      "time_s": 1.57,
+      "graph_records_used": 1,
+      "cypher_query": "MATCH (c:Chemical)-[:BELONGS_TO]->(m:MoAGroup) WHERE toLower(c.name) = toLower('Spirotetramat') RETURN c.name AS Chemical, m.group_name AS MoA_Group_Name, m.group_code AS MoA_Group_Code LIMIT 1"
+    }
+  },
+  {
+    "id": "A3",
+    "category": "Entity",
+    "question": "Which beneficial insects prey on Helicoverpa?",
+    "baseline": {
+      "answer": "Several beneficial insects and spiders prey on *Helicoverpa* species. *Coccinella transversalis*, *Adalia bipunctata*, and *Dicranolauis bellulus* are known to consume *Helicoverpa spp.* eggs and larvae (Source 1). Ants, specifically *Pheidole* and *Iridomyrmex spp.*, prey on *H. armigera* eggs, though their impact can be limited by cultivation practices (Source 3). Additionally, spiders such as the yellow nightstalker (*Cheiracanthium spp.*) are likely predators of *Helicoverpa spp.* (Source 3). Predatory insects from diverse Orders including Dermaptera, Orthoptera, Heteroptera, Neuroptera, and Coleoptera, along with spiders from Order Araneida, also prey upon *Helicoverpa spp.* (Source 5).",
+      "time_s": 4.87,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "The provided CRDC Knowledge Graph context lists several beneficial insects, including Trichogramma, Microplitis, red and blue beetles (Dicranolaius bellulus), damsel bugs, and web-building spiders. However, the context does not specify which of these particular beneficial insects prey on Helicoverpa. Therefore, based solely on the information provided, it is not possible to identify which of these listed insects prey on Helicoverpa.",
+      "intent": "graph_only",
+      "time_s": 2.42,
+      "graph_records_used": 5,
+      "cypher_query": "MATCH (b:Beneficial)-[:PREDATES]->(p:Pest) WHERE toLower(p.name) CONTAINS toLower('Helicoverpa') RETURN b.name AS BeneficialInsectName, b.scientific_name AS ScientificName LIMIT 50"
+    }
+  },
+  {
+    "id": "A4",
+    "category": "Entity",
+    "question": "What diseases affect cotton and what pathogens cause them?",
+    "baseline": {
+      "answer": "Cotton is affected by several diseases caused by various pathogens. Cotton blue disease is caused by the Cotton leafroll dwarf virus (Polerovirus), leading to stunting and leaf damage (Source 1). Alternaria leaf spot is caused by *Alternaria macrospora*, which survives on crop residues (Source 5). Phytophthora boll rot occurs when *Phytophthora* zoospores are splashed onto bolls (Source 5).\n\nCotton virescence phytoplasm (16SrII) causes Cotton phyllody, also known as Cotton flower virescence (Source 6). Fusarium wilt and Verticillium wilt are also significant diseases affecting cotton (Source 3). The cause of \"red cotton disease\" is associated with whitefly but has not yet been explained (Source 3).",
+      "time_s": 6.31,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Cotton is affected by a range of diseases caused by various pathogens, including fungi, bacteria, viruses, and nematodes. Fungal diseases include Black root rot (Berkeleyomyces rouxiae), Fusarium wilt (Fusarium oxysporum f. sp. vasinfectum), Collar rot (Agroathelia rolfsii), and several boll rots such as Anthracnose (Colletotrichum spp.), Diplodia (Diplodia spp.), Fusarium (Fusarium spp.), Phytophthora (Phytophthora nicotianae var. parasitica), and Sclerotinia (Sclerotinia sclerotiorum). Bacterial blight is caused by Xanthomonas citri pv. malvacearum, while Cotton bunchy top is a viral disease.\n\nLeaf spots are attributed to Alternaria spp., Cercospora spp., Corynespora spp., Stemphylium spp., and Ramulariopsis spp. Additionally, nematodes like Reniform (Rotylenchulus reniformis), Root-knot (Meloidogyne spp.), Lesion (Pratylenchus sp.), Spiral (Helicotylenchus dihystera), and Stubby-root (Paratrichodorus minor) are significant pathogens. Other noted diseases include Boll rot, Tight lock, and Seed rot, for which specific pathogens are not detailed in the provided context.",
+      "intent": "graph_only",
+      "time_s": 9.14,
+      "graph_records_used": 40,
+      "cypher_query": "MATCH (d:Disease)-[:AFFECTS]->(c:Crop) WHERE toLower(c.name) = 'cotton' RETURN d.name AS Disease, d.pathogen AS Pathogen LIMIT 50"
+    }
+  },
+  {
+    "id": "A5",
+    "category": "Entity",
+    "question": "What exotic pests have an EXTREME biosecurity risk rating?",
+    "baseline": {
+      "answer": "The provided document context does not specify any exotic pests with an \"EXTREME biosecurity risk rating.\"\n\nHowever, it does refer to \"High Priority Pests\" or \"least wanted\" lists. For instance, in November 2016, the Department of Agriculture and Water Resources released a list of Australia's \"top 40 least wanted plant pests and diseases\" (Source 2, Source 3). Additionally, some surveillance programs target \"157 high priority exotic pests\" (Source 4, Source 5). The context does not provide the specific names of pests on these lists or a classification of \"EXTREME\" risk.",
+      "time_s": 4.51,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "No specific information regarding exotic pests with an EXTREME biosecurity risk rating was found in the CRDC Knowledge Graph or official cotton industry manuals. Generally, an \"extreme\" biosecurity risk rating is applied to exotic pests that pose a severe threat to the Australian cotton industry and broader agriculture. These pests would have the potential for rapid spread, significant yield losses, high control costs, and severe trade implications if they were to establish in Australia.",
+      "intent": "graph_only",
+      "time_s": 2.66,
+      "graph_records_used": 0,
+      "cypher_query": "MATCH (p:Pest) WHERE p.biosecurity_risk = 'EXTREME' RETURN p.name AS PestName, p.biosecurity_risk AS BiosecurityRisk LIMIT 50"
+    }
+  },
+  {
+    "id": "B1",
+    "category": "Prose",
+    "question": "What are the key recommendations for soil preparation before planting cotton?",
+    "baseline": {
+      "answer": "Key recommendations for soil preparation before planting cotton include retaining cereal stubble, which helps hard-setting soils receive a full profile (Source 1). Planting a cover crop, such as Jarra grass, harvesting it, and then planting cotton into the Jarra stubble is much more effective for mulch cover protection, as cotton seed is fragile and can die in hot soil (Source 3). Green manure crops can also provide short-term benefits in red soils, potentially from the production of stable biopores (Source 1).",
+      "time_s": 4.97,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Key recommendations for soil preparation before planting cotton include retaining stubble, such as cereal or Jarra grass, to help hard-setting soils receive a full profile and protect fragile cotton seeds from hot soil temperatures, particularly in northern Australia (Source 1, 3). Minimise soil disturbance, especially in the furrow and bed shoulders, to retain biopores crucial for water infiltration and to prevent rapid soil organic matter breakdown (Source 1). In red soils, green manure crops can produce stable biopores and increase organic matter (Source 1). Improving soil structure by decreasing ped size in the top 15 cm also assists cotton emergence (Source 5).",
+      "intent": "vector_only",
+      "time_s": 4.24,
+      "graph_records_used": 0,
+      "cypher_query": null
+    }
+  },
+  {
+    "id": "B2",
+    "category": "Prose",
+    "question": "Describe best practices for cotton irrigation scheduling.",
+    "baseline": {
+      "answer": "While no single irrigation strategy performs optimally every year, key decision points include deciding whether to pre-irrigate or water up at sowing, determining the timing of the first irrigation, and choosing a target deficit (Source 1). For the first irrigation, pre-irrigation offers advantages like reduced time pressure and leveraging pre-plant rain, while watering-up can help address plant stand issues (Source 3). When water is limited, the general practice is to follow the region's optimised irrigation strategy, often leading to a reduction in irrigated crop area (Source 5). Establishing cotton on rain moisture is preferable, but if not possible, watering-up is preferred over pre-irrigation when water is scarce (Source 5).",
+      "time_s": 6.77,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Optimal irrigation scheduling for cotton involves several key decision points, including deciding whether to pre-irrigate or water up at sowing, determining the timing of the first irrigation, and choosing a target deficit to minimize stress during flowering and cut-out (Source 1). Growers should aim to dry the soil down to about 70% of Plant Available Water Capacity (PAWC) by the time the crop has 60% bolls open (Source 1). When water is limited, watering-up is preferred over pre-irrigation, as less water is lost from the system during crop establishment (Source 5). In such cases, the general practice is to adhere to the optimized irrigation strategy for the region but reduce the irrigated crop area (Source 5).",
+      "intent": "vector_only",
+      "time_s": 2.98,
+      "graph_records_used": 0,
+      "cypher_query": null
+    }
+  },
+  {
+    "id": "B3",
+    "category": "Prose",
+    "question": "What safety precautions should be taken when applying chemicals?",
+    "baseline": {
+      "answer": "When applying chemicals, everyone involved must take a proactive approach to safety, with pesticide safety procedures detailed in the SprayPak handbook (Source 4, 5). A basic consideration is to always read the product label (Source 4, 5). Air-conditioned cabs should be fitted with activated charcoal filter elements, and the cab interior must not be contaminated after mixing or loading (Source 1). For spills, consult the MSDS for PPE and management instructions, avoid smoking, eating, or drinking during cleanup, and work on the upwind side (Source 3). Chemical storage areas must be secure, able to contain spills, and display suitable warning notices (Source 1).",
+      "time_s": 5.48,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "When applying chemicals, the primary safety precaution is to read the product label, as pesticide safety procedures are detailed there (Source 4, 5). Personal Protective Equipment (PPE) is crucial; operators must refer to labels and Material Safety Data Sheets (MSDS) for specific requirements (Source 1, 3, 4, 5). Air-conditioned cabs should be fitted with activated charcoal filter elements, and the cab interior must not be contaminated after mixing or loading (Source 1). A proactive approach to safety is required, which includes not smoking, eating, or drinking during operations, and working in well-ventilated areas or upwind (Source 3, 4, 5). Furthermore, individuals must possess knowledge of chemical hazards, risks, and specific safety procedures to ensure minimum risk to self, others, and the environment (Source 6).",
+      "intent": "vector_only",
+      "time_s": 8.47,
+      "graph_records_used": 0,
+      "cypher_query": null
+    }
+  },
+  {
+    "id": "B4",
+    "category": "Prose",
+    "question": "Explain the process for hand-picking for pest monitoring in cotton.",
+    "baseline": {
+      "answer": "Hand-picking for pest monitoring involves collecting samples of bolls from different points in the field. For each boll, fold back the bracts and inspect the boll calyx and the inner surface of each bract for larvae (Source 2). Then, pull away the boll stalk to detach the inner bract and expose the boll base, inspecting these areas carefully for larvae, especially first instar larvae which can be difficult to see (Source 2). Sampling continues with samples of ten bolls until the cumulative number of *P. scutigera* larvae exceeds the upper limit (initiate control) or falls below the lower limit (no control) (Source 5).",
+      "time_s": 3.95,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "For pest monitoring, hand-picking involves collecting bolls from cotton plants to inspect for larvae, such as the Pink-Spotted Bollworm (*Pectinophora scutigera*). The process includes picking bolls with their stalks, folding back bracts to inspect the calyx and inner bract surfaces, and then pulling away the boll stalk to expose the boll base for further inspection (Source 2). A knife is used to split open the boll by inserting it into a suture midway between the base and apex, twisting the blade to avoid damaging any larvae (Source 2). It is recommended to take at least ten samples of ten bolls from different field points to achieve acceptable precision for monitoring (Source 5).",
+      "intent": "vector_only",
+      "time_s": 3.92,
+      "graph_records_used": 0,
+      "cypher_query": null
+    }
+  },
+  {
+    "id": "B5",
+    "category": "Prose",
+    "question": "What are the recommended record-keeping practices for spray applications?",
+    "baseline": {
+      "answer": "It is essential for operators to maintain current and accurate records for each spray application (Source 2). These records provide valuable information for analysing pesticide use, checking application rates and performance, and demonstrating appropriate management steps (Source 1, 2). They also assist in defending allegations or resolving disputes, and are required under Occupational Health & Safety legislation (Source 1, 2). Recommended records include the Spray and Drift Management Plan (SDMP), maps, and spray order forms (Source 2). The Cotton benchmark Survey 2001 reported that records were kept for 100% of spray applications, with 75% of respondents utilising the SprayLog record book (Source 3, 4).",
+      "time_s": 4.49,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Recommended record-keeping practices for spray applications involve maintaining current and accurate records for every operation (Source 2, 6). These records are crucial for analysing pesticide use, demonstrating appropriate management, and defending against allegations (Source 1). Essential details to record include the date and time of application, farm and crop details, chemicals and adjuvants used (noting endosulfan restrictions), and water volumes (Source 2). A copy of the relevant Spray and Drift Management Plan (SDMP) and any spray order forms should also be kept (Source 2). Records are also required for any complaints received (Source 6) and can be maintained in a farm diary or using tools like SprayLog (Source 1, 3).",
+      "intent": "vector_only",
+      "time_s": 4.69,
+      "graph_records_used": 0,
+      "cypher_query": null
+    }
+  },
+  {
+    "id": "C1",
+    "category": "Hybrid",
+    "question": "What are the resistance management strategies for Silverleaf Whitefly?",
+    "baseline": {
+      "answer": "The primary resistance management strategy for Silverleaf Whitefly (SLW) is the Insecticide Resistance Management Strategy (IRMS), which involves an annual review process (Source 2). A key component of the IRMS is the ongoing monitoring of SLW resistance status, with results used to inform the industry (Source 2, Source 5). This monitoring helps maintain the effectiveness of registered products for SLW, as overall resistance levels remain low (Source 2). The detection of resistance to pyriproxyfen at Croppa Creek in northern NSW highlights the importance of the IRMS in managing emerging resistance (Source 2).",
+      "time_s": 5.7,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Resistance management for Silverleaf Whitefly involves limiting insecticide applications and rotating chemical modes of action to mitigate resistance development. Many chemicals have specific application limits, such as a maximum of two applications per season for Diafenthiuron (MoA Group 12A) and Cyantraniliprole (MoA Group 28), and only one application for Buprofezin (MoA Group 16/17A), Spirotetramat (MoA Group 23), Bifenthrin (MoA Group 3A), and Pyriproxyfen (MoA Group 7C) (CRDC Knowledge Graph).\n\nResistance has rapidly developed in field populations to pyrethroids, imidacloprid, and insect growth regulators like buprofezin and pyriproxyfen, with cross-resistance confirmed between buprofezin and pyriproxyfen (Source 1, 2, 6). A key strategy to overcome resistance, particularly in pyrethroid-resistant whitefly, involves insecticide synergism using microencapsulation of insecticides with piperonyl butoxide (PBO) (Source 4, 6).",
+      "intent": "hybrid",
+      "time_s": 8.6,
+      "graph_records_used": 14,
+      "cypher_query": "MATCH (p:Pest)-[r:CONTROLLED_BY]->(c:Chemical) WHERE toLower(p.name) CONTAINS toLower('Silverleaf Whitefly') OPTIONAL MATCH (c)-[:BELONGS_TO]->(m:MoAGroup) RETURN p.name AS Pest, c.name AS Chemical, r.resistance_status AS ResistanceStatus, r.max_applications AS MaxApplications, m.group_code AS MoAGroupCode, m.group_name AS MoAGroupName LIMIT 50"
+    }
+  },
+  {
+    "id": "C2",
+    "category": "Hybrid",
+    "question": "What are the approved chemicals for Helicoverpa and their recommended application timing?",
+    "baseline": {
+      "answer": "Approved chemicals for *Helicoverpa* species control include Abrade\u00ae 50% a.i., Azamax\u00ae 1% a.i., and BASF320 200g a.i. (Source 1). Newer selective insecticides advocated for *Helicoverpa armigera* are emamectin benzoate, chlorantraniliprole, and indoxacarb (Source 4). Methomyl (MoA Group 1A Carbamates), sold as Lannate, Marlin, Nudrin, and Electra, also has label claims for *Helicoverpa armigera* (Source 5).\n\nFor resistance management, *Bacillus thuringiensis* and *Helicoverpa viruses* are recommended, with product windows extending across most months (June-May) in Southern QLD, Central & Northern NSW, and Northern Regions (Sources 2, 3). Specific application timings for all other listed chemicals are not detailed in the provided context.",
+      "time_s": 8.15,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Approved chemicals for *Helicoverpa armigera* include Bacillus thuringiensis, Helicoverpa viruses, Paraffinic oil, Chlorantraniliprole, Indoxacarb, Spinetoram, Emamectin benzoate, Carbamates (e.g., methomyl, thiodicarb), and Pyrethroids (Source 2, 3, 5).\n\nBacillus thuringiensis, Helicoverpa viruses, and Paraffinic oil have no seasonal restrictions (Source 2, 3). Selective insecticides such as Chlorantraniliprole, Indoxacarb, Spinetoram, and Emamectin benzoate generally have \"DO NOT USE\" periods from October to December and are limited to one or two applications per crop per season (Source 2, 3). Carbamates and Pyrethroids also have \"DO NOT USE\" periods, typically from October to January, and are restricted to one application per crop per season (Source 2, 3). These timings are part of resistance management strategies across various regions (Source 2, 3).",
+      "intent": "hybrid",
+      "time_s": 7.81,
+      "graph_records_used": 22,
+      "cypher_query": "MATCH (p:Pest)-[:CONTROLLED_BY]->(c:Chemical) WHERE toLower(p.name) CONTAINS toLower('Helicoverpa') RETURN c.name AS ChemicalName, c.trade_names AS TradeNames, c.key_notes AS KeyNotes LIMIT 50"
+    }
+  },
+  {
+    "id": "C3",
+    "category": "Hybrid",
+    "question": "What are the spray thresholds for mirids and how do I sample for them?",
+    "baseline": {
+      "answer": "Mirid spray thresholds are dynamic, varying by season, climatic region, and sampling method (Source 2). They are based on both the number of mirids found and the plant's fruit retention (Source 5). The fruit retention threshold is 60% throughout Australia; if retention drops below this, the plant is susceptible to damage (Source 1a, Source 5). For beatsheet sampling, the general threshold is 3 mirids/m in warm regions and 1.5 mirids/m in cool regions (Source 1a). A visual survey recommendation for warm regions is 1 mirid/metre during the most vulnerable part of the season (Source 2).",
+      "time_s": 5.87,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Mirid spray thresholds are based on both the number of mirids found in the field and the plant's fruit retention (Source 5). The retention threshold is 60% throughout Australia; if retention drops below this, the plant is more susceptible to damage (Source 5, Source 1 Fig. 1.2). Mirid number thresholds vary by climatic region and sampling method (Source 5). For beatsheet sampling, the general threshold is 3 mirids/m in warm regions and 1.5 mirids/m in cool regions (Source 1 Fig. 1.2). For visual surveys in warm regions, the recommendation is 1 mirid/metre (Source 2). Sampling methods include the visual search, which involves carefully searching one metre of a cotton row, and beatsheet sampling (Source 5, Source 1).",
+      "intent": "hybrid",
+      "time_s": 4.38,
+      "graph_records_used": 0,
+      "cypher_query": "MATCH (p:Pest)-[:HAS_THRESHOLD]->(th:Threshold) WHERE toLower(p.name) CONTAINS 'mirid' RETURN p.name AS Pest, th.value AS Threshold_Value, th.crop_phase AS Crop_Phase, th.sampling_method AS Sampling_Method, th.notes AS Notes LIMIT 50"
+    }
+  },
+  {
+    "id": "C4",
+    "category": "Hybrid",
+    "question": "How should I manage Fusarium wilt and what varieties are resistant?",
+    "baseline": {
+      "answer": "Managing Fusarium wilt primarily relies on resistant varieties, which are considered the cornerstone of management, though no varieties offer complete immunity (Source 1, 5, 6). Many popular high-yielding varieties are very susceptible, including some Bt and \"Round-up Ready\" transformed varieties (Source 1, 6).\n\nOther management strategies include early detection and containment of small outbreaks through disease surveys, positive identification of Fov, and controlling movement and irrigation through affected areas (Source 2). While Fov can survive under various rotation crops, there is some evidence of reduction following resistant cotton varieties and soybeans (Source 3). However, winter crops like wheat, faba bean, chickpea, safflower, and canola did not impact Fusarium wilt severity in subsequent cotton crops (Source 4).",
+      "time_s": 5.32,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "To manage Fusarium wilt, practice good farm hygiene (\"Come Clean. Go Clean.\"), select varieties with a high F rank, and delay planting until soil temperatures are 16\u00b0C and rising (Knowledge Graph). Other strategies include using Bion\u00ae Plant Activator, avoiding mechanical inter-row cultivations, managing crop stress, and minimizing tail water (Knowledge Graph). After harvest, root pull and retain crop residues on the surface for 60-120 days, and rotate with non-hosts for up to 3 years (Knowledge Graph).\n\nResistant varieties are the cornerstone for management; therefore, growers should use the most resistant cotton varieties available (Source 1, 4, 5). However, many popular high-yielding varieties are susceptible, and no varieties currently offer complete resistance (Source 1, 6). More stringent testing procedures have been implemented, but better resistance levels are still required (Source 1).",
+      "intent": "hybrid",
+      "time_s": 6.05,
+      "graph_records_used": 1,
+      "cypher_query": "MATCH (d:Disease {name: 'Fusarium wilt'}) RETURN d.name AS DiseaseName, d.management AS ManagementStrategy, null AS ResistantVariety, null AS ResistanceTrait UNION ALL MATCH (v:Variety)-[:HAS_TRAIT]->(t:Trait) WHERE toLower(t.name) CONTAINS toLower('fusarium wilt resistance') OR toLower(t.name) CONTAINS toLower('fusarium resistance') RETURN null AS DiseaseName, null AS ManagementStrategy, v.name AS ResistantVariety, t.name AS ResistanceTrait LIMIT 50"
+    }
+  },
+  {
+    "id": "C5",
+    "category": "Hybrid",
+    "question": "What are the key defoliants used in cotton and their temperature requirements?",
+    "baseline": {
+      "answer": "The provided document context does not contain information regarding the key defoliants used in cotton or their specific temperature requirements. The documents discuss optimal temperature ranges for cotton growth and physiological processes, such as 23-32\u2103 for efficient metabolic activity and 31\u2103 for optimal photosynthesis (Source 1, Source 3, Source 5), but do not mention defoliants.",
+      "time_s": 5.0,
+      "chunks_used": 6
+    },
+    "graphrag": {
+      "answer": "Key defoliants used in cotton include Thidiazuron, Diuron, and Pyraflufen-ethyl. Thidiazuron's activity is highly temperature dependent; it should not be used when night temperatures fall below 12\u00b0C or mean day/night temperatures fall below 18\u00b0C, with uptake improved by higher temperatures. Diuron, often used in a commercial blend with Thidiazuron, offers increased efficacy under cool conditions, making it suitable when Thidiazuron alone is unsuitable due to low temperatures. Pyraflufen-ethyl is always applied as a tank mixture with other defoliants like Ethephon and Thidiazuron, and its label should be consulted for specific advice.",
+      "intent": "graph_only",
+      "time_s": 2.83,
+      "graph_records_used": 3,
+      "cypher_query": "MATCH (c:Chemical) WHERE c.chemical_type = 'defoliant' RETURN c.name AS Defoliant, c.key_notes AS KeyNotes LIMIT 50"
+    }
+  }
+]

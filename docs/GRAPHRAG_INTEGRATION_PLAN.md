@@ -57,8 +57,9 @@ flowchart LR
         A["Hybrid RAG<br/>(Supabase pgvector)"]
         B["Knowledge Graph<br/>(Neo4j)"]
         A ~~~ B
-    B -->|"This Plan"| C
     end
+
+    B -->|"This Plan"| C
     
     subgraph GOAL["Goal: Unified System"]
         direction TB

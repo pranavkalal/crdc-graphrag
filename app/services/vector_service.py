@@ -53,7 +53,17 @@ class VectorService:
         # Convert postgres:// to postgresql+asyncpg:// for SQLAlchemy async
         uri = pg_uri.replace("postgresql://", "postgresql+asyncpg://", 1)
         uri = uri.replace("postgres://", "postgresql+asyncpg://", 1)
-        self._engine = create_async_engine(uri, pool_size=3, max_overflow=2)
+        # Disable prepared statement cache — required for Supabase's
+        # pgbouncer pooler which runs in transaction mode.
+        self._engine = create_async_engine(
+            uri,
+            pool_size=3,
+            max_overflow=2,
+            connect_args={
+                "statement_cache_size": 0,
+                "prepared_statement_cache_size": 0,
+            },
+        )
         self._openai = AsyncOpenAI(api_key=openai_key)
         self._embedding_cache: dict[str, list[float]] = {}
 
